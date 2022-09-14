@@ -4,8 +4,7 @@ import unittest
 import os
 from models.amenity import Amenity
 from models.base_model import BaseModel
-import 
-
+import pep8
 
 
 class TestAmenity(unittest.TestCase):
