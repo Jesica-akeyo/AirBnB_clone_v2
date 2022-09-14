@@ -1,33 +1,38 @@
 #!/usr/bin/python3
 """ State Module for HBNB project """
-from models.base_model import BaseModel
-from sqlalchemy.ext.declarative import declarative_base
 from models.base_model import BaseModel, Base
+from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String
-import models
+from os import getenv
 from models.city import City
-import shlex
+import models
 
+if getenv('HBNB_TYPE_STORAGE') == 'db':
+    class State(BaseModel, Base):
+        """ State class """
+        __tablename__ = 'states'
+        name = Column(String(128), nullable=False)
+        # if state is deleted, all linked sity objects are also deleted
+        # The reference from a City object to his State should be named state
+        cities = relationship(
+            'City',
+            backref='state',
+            cascade='all, delete, delete-orphan')
 
-class State(BaseModel):
-    """ State class """
-    __tablename__ = "states"
-    name = Column(String(128), nullable=False)
-    cities = relationship("City", cascade='all, delete, delete-orphan',
-                          backref="state")
+else:
+    class State(BaseModel):
+        """ State class """
 
-    @property
-    def cities(self):
-        var = models.storage.all()
-        lista = []
-        result = []
-        for key in var:
-            city = key.replace('.', ' ')
-            city = shlex.split(city)
-            if (city[0] == 'City'):
-                lista.append(var[key])
-        for elem in lista:
-            if (elem.state_id == self.id):
-                result.append(elem)
-        return (result)
+        name = ''
+
+        @property
+        def cities(self):
+            """
+            returns the list of City instances for the current State instance
+            """
+
+            # Gets all cities
+            cities = models.storage.all(City).values()
+            # Gets cities where state.id = city.state_id
+            cities_list = [city for city in cities if self.id == city.state_id]
+            return cities_list
