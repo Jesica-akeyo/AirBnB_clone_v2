@@ -33,23 +33,21 @@ class BaseModel:
                 if key != "__class__":
                     setattr(self, key, value)
             if "id" not in kwargs:
-                self.id = str(uuid.uuid4())
+                setattr(self, "id", str(uuid.uuid4()))
+
+            time = datetime.now()
             if "created_at" not in kwargs:
-                self.created_at = datetime.now()
+                setattr(self, "created_at", time)
             if "updated_at" not in kwargs:
-                self.updated_at = datetime.now()
+                setattr(self, "updated_at", time)
         else:
             self.id = str(uuid.uuid4())
             self.created_at = self.updated_at = datetime.now()
 
     def __str__(self):
         """Returns a string representation of the instance"""
-        return "[{}] ({}) {}".format(
-                type(self).__name__, self.id, self.__dict__)
-
-    def __repr__(self):
-        """ returns a string representation"""
-        return self.__str__()
+        cls = (str(type(self)).split('.')[-1]).split('\'')[0]
+        return "[{}] ({}) {}".format(cls, self.id, self.__dict__)
 
     def save(self):
         """Updates updated_at with current time when instance is changed"""
