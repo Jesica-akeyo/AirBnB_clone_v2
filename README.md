@@ -19,7 +19,7 @@ The console is the first segment of the AirBnB project at Holberton School that 
 * [License](  # license)
 
 # Environment
-This project is interpreted / tested on Ubuntu 14.04 LTS using python3(version 3.4.3)
+This project is interpreted / tested on Ubuntu 20.04 LTS using python3(version 3.8.5)
 
 # Installation
 * Clone this repository: `git clone "https://github.com/alexaorrico/AirBnB_clone.git"`
@@ -154,8 +154,8 @@ EOF  all  create  destroy  help  quit  show  update
 No known bugs at this time.
 
 # Authors
-Sau Nyange - [Github](https://github.com/JulianaSau) </br>
-Adam Keino - [Github](https://github.com/adamkeino)
+Jesica-akeyo - [Github](https://github.com/Jesica-akeyo) </br>
+selina-nancy - [Github](https://github.com/selina-nancy)
 
 # License
-Public Domain. No copy write protection.
+Public Domain. No copyright protection.
