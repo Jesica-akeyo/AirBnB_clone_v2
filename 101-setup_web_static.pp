@@ -1,63 +1,81 @@
 # Script that sets up your we servers for the deployment of web_static
 # using puppet
 
+
 exec {'update':
-  provider => shell,
-  command  => 'sudo apt-get -y update',
-  before   => Exec['install Nginx'],
+path     => '/usr/bin',
+command  => 'sudo apt-get -y update',
+provider => 'shell',
 }
-
-exec {'install Nginx':
-  provider => shell,
-  command  => 'sudo apt-get -y install nginx',
-  before   => Exec['start Nginx'],
+->
+package { 'apache2.2-common':
+ensure => absent,
 }
-
-exec {'start Nginx':
-  provider => shell,
-  command  => 'sudo service nginx start',
-  before   => Exec['create first directory'],
+->
+package { 'nginx':
+ensure  => installed,
+require => Package['apache2.2-common'],
 }
-
-exec {'create first directory':
-  provider => shell,
-  command  => 'sudo mkdir -p /data/web_static/releases/test/',
-  before   => Exec['create second directory'],
+->
+service { 'nginx':
+ensure  => running,
+require => Package['nginx'],
 }
-
-exec {'create second directory':
-  provider => shell,
-  command  => 'sudo mkdir -p /data/web_static/shared/',
-  before   => Exec['content into html'],
+->
+file { '/data/':
+ensure => 'directory',
 }
-
-exec {'content into html':
-  provider => shell,
-  command  => 'echo "Holberton School" | sudo tee /data/web_static/releases/test/index.html',
-  before   => Exec['symbolic link'],
+->
+file { '/data/web_static/':
+ensure => 'directory',
 }
-
-exec {'symbolic link':
-  provider => shell,
-  command  => 'sudo ln -sf /data/web_static/releases/test/ /data/web_static/current',
-  before   => Exec['put location'],
+->
+file { '/data/web_static/shared/':
+ensure => 'directory',
 }
-
-exec {'put location':
-  provider => shell,
-  command  => 'sudo sed -i \'38i\\tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t\tautoindex off;\n\t}\n\' /etc/nginx/sites-enabled/default',
-  before   => Exec['restart Nginx'],
+->
+file { '/data/web_static/releases/':
+ensure => 'directory',
 }
-
-exec {'restart Nginx':
-  provider => shell,
-  command  => 'sudo service nginx restart',
-  before   => File['/data/']
+->
+file { '/data/web_static/releases/test/':
+ensure => 'directory',
 }
-
-file {'/data/':
-  ensure  => directory,
-  owner   => 'ubuntu',
-  group   => 'ubuntu',
-  recurse => true,
+->
+exec {'html file':
+path     => ['/usr/bin', '/bin'],
+command  => 'sudo touch /data/web_static/releases/test/index.html',
+provider => 'shell',
+}
+->
+exec {'write html':
+path     => ['/usr/bin', '/bin'],
+command  => 'sudo echo  "Holberton School" > /data/web_static/releases/test/index.html',
+provider => 'shell',
+}
+->
+exec {'symlink':
+path     => ['/usr/bin', '/bin'],
+command  => 'sudo ln -sf /data/web_static/releases/test/ /data/web_static/current',
+provider => 'shell',
+}
+->
+exec {'chown':
+path     => ['/usr/bin', '/bin'],
+command  => 'sudo chown -R ubuntu:ubuntu /data/',
+provider => 'shell',
+}
+->
+exec {'config':
+path     => ['/usr/bin', '/bin'],
+# lint:ignore:140chars
+command  => 'myc="\n\tlocation \/hbnb_static\/ {\n\t\talias \/data\/web_static\/current\/\;\n\t}\n"; st="server {"; sudo sed -i "s/^$st/$st$myc/" /etc/nginx/sites-enabled/default',
+# lint:endignore
+provider => 'shell',
+}
+->
+exec {'start nginx':
+path     => ['/usr/bin', '/bin', '/usr/sbin/'],
+command  => 'sudo service nginx start',
+provider => 'shell',
 }
