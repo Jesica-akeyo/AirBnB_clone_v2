@@ -11,6 +11,7 @@ env.user = "ubuntu"
 
 
 def do_deploy(archive_path):
+    """distributes an archive to my web servers"""
     if not os.path.exists(archive_path):
         return False
     try:
